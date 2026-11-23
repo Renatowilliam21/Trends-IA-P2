@@ -42,3 +42,33 @@ interrompe o experimento. Linhas com erro ficam fora das médias e são contadas
 
 **Segredos.** A chave fica só no `.env`, que está no `.gitignore`, e nunca vai ao corpo da
 requisição, ao CSV ou às mensagens de erro.
+
+## Intermediário
+
+**Três etapas em vez de duas.** Preparar a pergunta, consultar o modelo e organizar a resposta
+têm entradas, saídas e falhas diferentes. Separar a organização da resposta permite classificar
+um desvio de formato como `parcial` sem tratá-lo como falha de API.
+
+**Nova tentativa só para falhas transitórias.** Timeout, limite de uso e erros 5xx podem passar
+sozinhos. Credencial, modelo e crédito inválidos falhariam de novo, então repetir só gastaria
+tempo. O limite de 3 tentativas e a espera crescente (1, 2 e 4 s) impedem laços.
+
+**Encerramento controlado da execução.** Se a falha se repetiria em todas as chamadas, ou o
+serviço falha em 3 casos seguidos, o programa para, salva o que já tem e sai com código 2.
+Continuar apenas produziria dezenas de linhas de erro e gastaria chamadas.
+
+**Registro de eventos separado do CSV.** O CSV tem uma linha por caso e serve para avaliar. O
+arquivo de eventos tem uma linha por etapa e serve para investigar. Ele nunca recebe
+credenciais (removidas por padrão de `sk-...` e `Bearer ...`), perguntas ou respostas do
+modelo, só tamanhos, situações e mensagens de erro curtas.
+
+**Avaliação cega mantida.** O comando `avaliar` embaralha as respostas de cada caso sem mostrar
+a configuração, como pede `docs/criterios.md`.
+
+**Configuração D.** Em vez de variar um parâmetro que talvez o modelo não aceite, D testa uma
+hipótese tirada do Básico (B foi pior em casos de cálculo e de condições): pedir ao modelo que
+confira dados e refaça cálculos. É uma única diferença de prompt em relação à A.
+
+**Comparação por categoria.** A nota média por categoria evita que um bom desempenho em casos
+fáceis esconda falhas nos difíceis, e mostra em que tipo de caso cada configuração é melhor ou
+pior. Não se seleciona caso: o relatório usa todos.

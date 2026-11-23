@@ -1,4 +1,5 @@
 """Montagem do prompt. Condição SEM RAG: só instruções e a pergunta, nunca o corpus."""
+import hashlib
 from pathlib import Path
 
 from config import RAIZ_PROJETO
@@ -45,3 +46,8 @@ def montar_corpo(caso, config, servico, pasta=None):
     if config.reasoning_effort is not None:
         corpo["reasoning_effort"] = config.reasoning_effort
     return corpo
+
+
+def versao_prompt(config, pasta=None):
+    """Identificador curto (hash) das instruções efetivas, para registrar qual prompt rodou."""
+    return hashlib.sha256(instrucoes(config, pasta).encode("utf-8")).hexdigest()[:8]

@@ -14,6 +14,13 @@ def test_arquivo_do_projeto_traz_a_e_b_ativas_e_c_desligada():
     assert configs["C"].reasoning_effort == "low"
 
 
+def test_d_difere_da_a_apenas_na_instrucao_de_saida():
+    _, configs = carregar_configuracoes(ARQUIVO_PADRAO)
+    a, d = configs["A"].parametros(), configs["D"].parametros()
+    assert configs["D"].ativa and configs["D"].formato == "conferir"
+    assert {k for k in a.keys() | d.keys() if a.get(k) != d.get(k)} == {"formato"}
+
+
 def test_a_e_b_diferem_apenas_no_formato():
     _, configs = carregar_configuracoes(ARQUIVO_PADRAO)
     a, b = configs["A"].parametros(), configs["B"].parametros()
@@ -23,7 +30,7 @@ def test_a_e_b_diferem_apenas_no_formato():
 
 def test_escolher_usa_apenas_ativas_por_padrao():
     _, configs = carregar_configuracoes(ARQUIVO_PADRAO)
-    assert [c.nome for c in escolher_configs(configs)] == ["A", "B"]
+    assert [c.nome for c in escolher_configs(configs)] == ["A", "B", "D"]
 
 
 def test_escolher_aceita_nomes_explicitos():

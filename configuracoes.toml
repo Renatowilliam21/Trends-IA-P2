@@ -5,6 +5,13 @@
 modelo = "gpt-5.6-terra"        # variável: OPENAI_MODEL (nomes mudam com frequência)
 timeout_segundos = 60           # variável: OPENAI_TIMEOUT
 
+# Limites do fluxo (Intermediário): nada de tentativas indefinidas.
+[fluxo]
+max_tentativas = 3          # chamadas por caso, só para falhas transitórias
+espera_base_s = 1.0         # espera antes da nova tentativa: 1 s, 2 s, 4 s (máx. 8 s)
+falhas_seguidas_max = 3     # após tantos casos seguidos sem resposta por falha do serviço, encerra
+max_caracteres = 1000       # tamanho máximo da pergunta
+
 [configuracoes.A]
 descricao = "Linha de base: resposta em texto livre."
 variacao = "nenhuma (referência)"
@@ -15,6 +22,14 @@ max_tokens = 2048
 descricao = "Mesmos parâmetros e mesma tarefa da A; muda só o formato de saída, pedido por instrução textual (JSON)."
 variacao = "formato de saída: de texto livre para JSON definido na instrução"
 formato = "json"
+max_tokens = 2048
+
+# Hipótese do Intermediário (docs/alteracoes.md): conferir dados e refazer cálculos antes de
+# concluir deve ajudar nos casos combinados e de premissa falsa. Muda só a instrução final.
+[configuracoes.D]
+descricao = "Igual à A, mas a instrução final pede conferir dados e refazer cálculos antes de concluir."
+variacao = "instrução final do prompt: conferência explícita de dados, cálculos e premissas"
+formato = "conferir"
 max_tokens = 2048
 
 # Configuração EXPERIMENTAL, desligada por padrão. Varia um parâmetro de geração em vez do
