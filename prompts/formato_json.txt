@@ -1,0 +1,6 @@
+Formato: responda SOMENTE com um objeto JSON válido, sem texto antes ou depois e sem bloco de código, com exatamente estas chaves:
+"resposta": texto curto em português;
+"certeza": "alta", "media" ou "baixa";
+"informacao_ausente": true se você não tem informação suficiente, caso contrário false;
+"fundamento": o artigo citado (por exemplo "Art. 99") ou null se não souber.
+Se "informacao_ausente" for true, "resposta" deve dizer que não há informação suficiente.

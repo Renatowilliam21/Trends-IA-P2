@@ -1,0 +1,29 @@
+# Configurações de geração comparadas no P2. Sem segredos: a chave fica no .env.
+# Cada configuração difere da linha de base em UMA coisa, descrita em "variacao".
+
+[servico]
+modelo = "gpt-5.6-terra"        # variável: OPENAI_MODEL (nomes mudam com frequência)
+timeout_segundos = 60           # variável: OPENAI_TIMEOUT
+
+[configuracoes.A]
+descricao = "Linha de base: resposta em texto livre."
+variacao = "nenhuma (referência)"
+formato = "livre"
+max_tokens = 2048
+
+[configuracoes.B]
+descricao = "Mesmos parâmetros e mesma tarefa da A; muda só o formato de saída, pedido por instrução textual (JSON)."
+variacao = "formato de saída: de texto livre para JSON definido na instrução"
+formato = "json"
+max_tokens = 2048
+
+# Configuração EXPERIMENTAL, desligada por padrão. Varia um parâmetro de geração em vez do
+# formato. Ative com ativa = true somente depois de confirmar que o modelo aceita o
+# parâmetro (se recusar, a execução registra o erro da API).
+[configuracoes.C]
+ativa = false
+descricao = "Igual à A, mas com esforço de raciocínio baixo."
+variacao = "parâmetro de geração: reasoning_effort = low"
+formato = "livre"
+max_tokens = 2048
+reasoning_effort = "low"
