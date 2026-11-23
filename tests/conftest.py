@@ -1,6 +1,7 @@
 """Apoio comum aos testes."""
 import pytest
 
+import config
 from casos import Caso
 from config import ConfigGeracao, Servico
 
@@ -14,6 +15,8 @@ def ambiente_isolado(monkeypatch, request):
         return
     for nome in VARIAVEIS:
         monkeypatch.delenv(nome, raising=False)
+    # Sem isto, um .env real do usuário seria lido e os testes fariam chamadas pagas.
+    monkeypatch.setattr(config, "load_dotenv", lambda *a, **k: False)
 
 
 @pytest.fixture
