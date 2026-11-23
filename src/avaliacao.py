@@ -22,10 +22,15 @@ ESCALA = (
 
 def gravar(caminho, linhas):
     campos = list(linhas[0].keys())
-    with open(caminho, "w", newline="", encoding="utf-8-sig") as arquivo:
-        escritor = csv.DictWriter(arquivo, fieldnames=campos)
-        escritor.writeheader()
-        escritor.writerows(linhas)
+    try:
+        with open(caminho, "w", newline="", encoding="utf-8-sig") as arquivo:
+            escritor = csv.DictWriter(arquivo, fieldnames=campos)
+            escritor.writeheader()
+            escritor.writerows(linhas)
+    except PermissionError:
+        raise ErroComparacao(
+            f"Não consegui gravar {Path(caminho).name}. Ele deve estar aberto no Excel ou em "
+            "outro programa. Feche-o e rode o comando de novo; as notas já gravadas continuam.")
 
 
 def _grupos(linhas):
