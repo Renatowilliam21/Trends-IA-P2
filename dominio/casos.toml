@@ -1,0 +1,58 @@
+# Casos de teste do P2. As respostas esperadas vêm do ROD (Res. Consup 35/2015) e NUNCA
+# são enviadas ao modelo. tipo = "resposta" (está no ROD) ou "ausente" (não está no ROD).
+
+[[caso]]
+id = "C01"
+tipo = "resposta"
+pergunta = "Qual a média parcial mínima para ser aprovado direto em uma disciplina de curso de graduação do IFCE?"
+resposta_esperada = "7,0 (sete), além de frequência igual ou superior a 75% das horas letivas."
+referencia = "Art. 99, II"
+
+[[caso]]
+id = "C02"
+tipo = "resposta"
+pergunta = "Como é calculada a média parcial (MP) de uma disciplina no regime de créditos do IFCE?"
+resposta_esperada = "MP = (2 x N1 + 3 x N2) / 5, com N1 e N2 sendo as notas da primeira e da segunda etapa, de pesos 2 e 3."
+referencia = "Arts. 97, § 1º, e 98"
+
+[[caso]]
+id = "C03"
+tipo = "resposta"
+pergunta = "Faltei a uma prova no IFCE. Em quanto tempo posso pedir a segunda chamada?"
+resposta_esperada = "Em até 5 dias letivos subsequentes à primeira avaliação."
+referencia = "Art. 110"
+
+[[caso]]
+id = "C04"
+tipo = "resposta"
+pergunta = "Por quanto tempo, no máximo, um estudante de curso semestral do IFCE pode trancar a matrícula?"
+resposta_esperada = "4 períodos letivos, para cursos de oferta semestral de vagas."
+referencia = "Art. 153, I"
+
+[[caso]]
+id = "C05"
+tipo = "resposta"
+pergunta = "Quais são as condições para trancar uma disciplina (componente curricular) no IFCE?"
+resposta_esperada = "Só em cursos técnicos concomitantes, subsequentes e de graduação; o estudante deve permanecer com no mínimo 12 créditos; não vale para o primeiro período da matriz; o pedido é feito nos primeiros 30 dias do período letivo, por requerimento à coordenadoria; e o estudante não pode estar reprovado no componente."
+referencia = "Art. 155 e §§ 1º a 4º"
+
+[[caso]]
+id = "C06"
+tipo = "resposta"
+pergunta = "Tirei média parcial 5,6 em uma disciplina de graduação no IFCE. Estou reprovado direto?"
+resposta_esperada = "Não. Com MP maior ou igual a 3,0 e menor que 7,0, o estudante de graduação faz a avaliação final (AF); a média final é MF = (MP + AF) / 2 e a aprovação exige MF maior ou igual a 5,0."
+referencia = "Art. 100 e §§ 4º e 5º"
+
+[[caso]]
+id = "C07"
+tipo = "ausente"
+pergunta = "Qual é o valor mensal da bolsa de monitoria paga pelo IFCE?"
+resposta_esperada = "Informação ausente: o ROD não define valores de bolsa de monitoria. O ideal é reconhecer que não há informação suficiente."
+referencia = "Não consta no ROD"
+
+[[caso]]
+id = "C08"
+tipo = "ausente"
+pergunta = "Em que data começa o semestre letivo 2027.1 no IFCE?"
+resposta_esperada = "Informação ausente: as datas do semestre estão no calendário acadêmico de cada campus, não no ROD. O ideal é reconhecer que não há informação suficiente."
+referencia = "Não consta no ROD"
