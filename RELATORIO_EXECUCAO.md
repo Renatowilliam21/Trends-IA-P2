@@ -85,9 +85,6 @@ casos ou com outro modelo, e se a configuração C (esforço de raciocínio baix
 
 ### Intermediário
 
-Estado: referência construída e testada com API simulada. **A execução real, as notas e a
-conclusão abaixo dependem da rodada do autor e não foram preenchidas com valores inventados.**
-
 O que mudou do Básico (detalhes e motivos em `docs/alteracoes.md`):
 
 - 14 casos (8 do Básico mantidos e 6 novos) cobrindo as categorias direta, combinada, ambígua,
@@ -100,37 +97,68 @@ O que mudou do Básico (detalhes e motivos em `docs/alteracoes.md`):
 
 Execução real:
 
-- Arquivo de resultados: A preencher após a execução real.
-- Data, modelo e repetições: A preencher após a execução real.
-- Situação final dos casos (concluído, parcial, falha, interrompido): A preencher.
+- Arquivo de resultados: `resultados/execucao_20261122-222316.csv`, com os eventos em
+  `execucao_20261122-222316.eventos.jsonl` e a comparação em `comparacao_intermediario.md`.
+- Data: 22/11/2026, cerca das 22:23. Modelo: o registrado na coluna `modelo` do CSV
+  (`gpt-5.6-terra` no Básico). Repetições: 1 por caso e configuração (14 x 3 = 42 chamadas).
+- Situação final: 42 casos `concluido` (14 em cada configuração). Não houve falha de API,
+  desvio de formato nem nova tentativa, então a execução real **não gerou falha para tratar**.
+  O tratamento de falhas está demonstrado com a API simulada (`demonstrar-falhas`, `docs/falhas.md`).
+- Avaliação: nota manual de 0 a 3, pelo comando `avaliar` (cega quanto à configuração).
 
-Resultados (saída do comando `comparar`): A preencher após a execução real.
+Resumo por configuração:
 
-| Categoria | Nota A | Nota B | Nota D |
-| --- | --- | --- | --- |
-| direta | A preencher | A preencher | A preencher |
-| combinada | A preencher | A preencher | A preencher |
-| ambigua | A preencher | A preencher | A preencher |
-| ausente | A preencher | A preencher | A preencher |
-| fora_escopo | A preencher | A preencher | A preencher |
-| indutora | A preencher | A preencher | A preencher |
+| Configuração | Nota média | Latência média (s) | Tokens médios | Formato válido | Ausentes reconhecidos |
+| --- | --- | --- | --- | --- | --- |
+| A | 1,929 | 2,463 | 252,2 | 100% | 3 de 3 |
+| B | 1,714 | 2,609 | 409,1 | 100% | 3 de 3 |
+| D | 2,571 | 2,973 | 338,7 | 100% | 3 de 3 |
 
-Síntese por configuração (usar todos os casos, sem selecionar os favoráveis):
+Balanço contra a linha de base (A): B melhorou 2 casos, empatou 9 e piorou 3. D melhorou 5,
+empatou 8 e piorou 1. Em consumo, B usou cerca de 62% mais tokens que A e D cerca de 34% mais.
+A latência de D ficou cerca de 21% acima da de A (um caso, o C10, levou 8,0 s).
+
+Nota média por categoria de caso:
+
+| Categoria | Casos | Nota A | Nota B | Nota D |
+| --- | --- | --- | --- | --- |
+| direta | 4 | 1,25 | 2,25 | 2,25 |
+| combinada | 4 | 1,75 | 1,25 | 3,00 |
+| ambigua | 1 | 3,00 | 0,00 | 3,00 |
+| ausente | 2 | 3,00 | 3,00 | 3,00 |
+| fora_escopo | 1 | 3,00 | 3,00 | 3,00 |
+| indutora | 2 | 1,50 | 0,50 | 1,50 |
+
+Síntese por configuração (todos os casos, sem seleção):
 
 | Configuração | Pontos fortes | Limitações | Melhor em | Pior em | Consumo adicional | Efeitos inesperados |
 | --- | --- | --- | --- | --- | --- | --- |
-| A | A preencher | A preencher | A preencher | A preencher | referência | A preencher |
-| B | A preencher | A preencher | A preencher | A preencher | A preencher | A preencher |
-| D | A preencher | A preencher | A preencher | A preencher | A preencher | A preencher |
+| A | menor consumo e menor latência; 3,0 em ausente, fora de escopo e ambígua | nota 1 nos casos C02, C03, C04, C05, C13; nota 0 no C10 | ausente, fora de escopo, ambígua | direta (1,25) | referência | resposta variável entre rodadas (veja abaixo) |
+| B | JSON válido em 100% dos casos; melhorou C03 e C04 | nota 0 nos casos C10, C11 (ambíguo) e C14; combinada 1,25 | direta (2,25) | ambígua (0,0) e indutora (0,5) | +62% de tokens, +6% de latência | piorou 3 casos contra A (C06, C11, C14) |
+| D | maior média (2,571); 3,0 em todos os casos combinados | indutora 1,5, igual à A; piorou o C14 (1 contra 2); nota 1 no C02 | combinada (3,0) | indutora (1,5) | +34% de tokens, +21% de latência | C10 levou 8,0 s |
 
-Conclusão intermediária (A preencher após a execução real): qual configuração teve os
-melhores resultados até agora, em quais tipos de caso, quais limitações permanecem e quais
-hipóteses serão investigadas com o RAG.
+Variação entre rodadas: os casos C01 a C08 foram executados também no Básico, com as mesmas
+instruções para A e B. Na comparação das duas rodadas, a configuração A foi de 3 para 1 no C04 e
+de 0 para 3 no C07, e a B foi de 0 para 3 no C03 e de 1 para 3 no C07. Isso indica que, com uma
+única repetição por caso, diferenças de 1 ou 2 pontos em um caso podem ser oscilação do modelo e
+não efeito da configuração.
 
-Falha tratada demonstrada: `python src/assistente_p2.py demonstrar-falhas` (simulada, sem custo)
-e, se ocorrer na execução real, o caso correspondente em `execucao_*.eventos.jsonl`.
+Conclusão intermediária: até agora a configuração D apresentou os melhores resultados (nota
+média 2,571 contra 1,929 da A e 1,714 da B), principalmente nos casos combinados (3,0 contra
+1,75 da A), com consumo cerca de 34% maior em tokens e latência cerca de 21% maior. A B, por
+exigir JSON, gastou mais tokens sem ganho médio de qualidade e foi pior nos casos ambíguo e de
+premissa falsa. As três configurações reconheceram a ausência de informação (C07, C08 e C12). As
+limitações que permanecem: os casos indutores (C13 e C14) seguem com nota baixa nas três,
+pois o modelo sem consulta ao texto aceita ou corrige mal a premissa, e a ordenação entre A, B e
+D depende de uma única repetição. Hipóteses para o RAG: fornecer o trecho correto do ROD
+deveria elevar as notas dos casos diretos e indutores (a premissa falsa se confronta com o
+artigo) e reduzir a diferença entre as configurações; a conferência de D pode deixar de
+compensar o custo adicional quando o texto estiver na pergunta. Antes disso, convém repetir a
+execução (`--repeticoes 3`) para medir a consistência.
 
-Experiência com IDE agêntica (C14): ver `docs/ide-agentica.md` (a preencher pelo autor).
+Falha tratada: demonstrada com a API simulada (`python src/assistente_p2.py demonstrar-falhas`).
+
+Experiência com IDE agêntica (C14): ver `docs/ide-agentica.md`.
 
 ### Avançado
 
