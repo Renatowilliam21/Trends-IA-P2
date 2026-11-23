@@ -103,6 +103,41 @@ def _por_caso(linhas, base):
     return saida
 
 
+SITUACOES = ("concluido", "parcial", "falha", "interrompido")
+
+
+def _por_categoria(linhas):
+    """Nota média por categoria de caso e configuração (None se o CSV não tem categoria)."""
+    if not any(l.get("categoria") for l in linhas):
+        return None
+    nomes = sorted({l["configuracao"] for l in linhas})
+    categorias = list(dict.fromkeys(l["categoria"] for l in linhas if l.get("categoria")))
+    saida = {}
+    for categoria in categorias:
+        saida[categoria] = {}
+        for nome in nomes:
+            grupo = [l for l in linhas if l.get("categoria") == categoria
+                     and l["configuracao"] == nome and not l.get("erro")]
+            saida[categoria][nome] = {"n": len(grupo),
+                                      "nota_media": _media(_numero(l["nota"]) for l in grupo)}
+    return saida
+
+
+def _situacoes(linhas):
+    """Contagem de situações finais, chamadas e tempo por configuração (None se não houver)."""
+    if not any(l.get("situacao_final") for l in linhas):
+        return None
+    saida = {}
+    for nome in sorted({l["configuracao"] for l in linhas}):
+        grupo = [l for l in linhas if l["configuracao"] == nome]
+        saida[nome] = {
+            **{s: sum(l.get("situacao_final") == s for l in grupo) for s in SITUACOES},
+            "chamadas_medias": _media(_numero(l.get("chamadas")) for l in grupo),
+            "tempo_total_medio_s": _media(_numero(l.get("tempo_total_s")) for l in grupo),
+        }
+    return saida
+
+
 def comparar(linhas, base):
     """Resumo por configuração e comparação caso a caso contra a linha de base."""
     nomes = {l["configuracao"] for l in linhas}
@@ -112,7 +147,8 @@ def comparar(linhas, base):
     if problemas:
         raise ErroComparacao("Preencha as notas antes de comparar:\n  - " + "\n  - ".join(problemas))
     return {"base": base, "configuracoes": _por_configuracao(linhas),
-            "casos": _por_caso(linhas, base)}
+            "casos": _por_caso(linhas, base), "categorias": _por_categoria(linhas),
+            "situacoes": _situacoes(linhas)}
 
 
 def _fmt(valor, sufixo=""):
@@ -153,4 +189,23 @@ def renderizar_markdown(resultado):
         c = cont[n]
         out.append(f"- {n}: {c['melhorou']} caso(s) melhoraram, {c['igual']} ficaram iguais e "
                    f"{c['piorou']} pioraram.")
+    categorias = resultado.get("categorias")
+    if categorias:
+        out += ["", "### Nota média por categoria de caso", "",
+                "| Categoria | Casos | " + " | ".join(f"Nota {n}" for n in nomes) + " |",
+                "|" + " --- |" * (2 + len(nomes))]
+        for categoria, por_config in categorias.items():
+            total = max(v["n"] for v in por_config.values())
+            notas = " | ".join(_fmt(por_config[n]["nota_media"]) for n in nomes)
+            out.append(f"| {categoria} | {total} | {notas} |")
+    situacoes = resultado.get("situacoes")
+    if situacoes:
+        out += ["", "### Situação final, chamadas e tempo", "",
+                "| Configuração | Concluído | Parcial | Falha | Interrompido | Chamadas médias | Tempo total médio (s) |",
+                "| --- | --- | --- | --- | --- | --- | --- |"]
+        for nome in nomes:
+            c = situacoes[nome]
+            out.append(f"| {nome} | {c['concluido']} | {c['parcial']} | {c['falha']} | "
+                       f"{c['interrompido']} | {_fmt(c['chamadas_medias'])} | "
+                       f"{_fmt(c['tempo_total_medio_s'])} |")
     return "\n".join(out) + "\n"

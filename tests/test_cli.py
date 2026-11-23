@@ -18,7 +18,8 @@ def api_falsa(corpo, servico):
 def test_listar(capsys):
     assert cli.main(["listar"]) == 0
     saida = capsys.readouterr().out
-    assert "Casos (8)" in saida and "A (ativa)" in saida and "C (desligada)" in saida
+    assert "Casos (14)" in saida and "A (ativa)" in saida and "D (ativa)" in saida
+    assert "C (desligada)" in saida
 
 
 def test_dry_run_nao_precisa_de_chave_e_nao_envia(capsys, monkeypatch):
@@ -27,7 +28,7 @@ def test_dry_run_nao_precisa_de_chave_e_nao_envia(capsys, monkeypatch):
     monkeypatch.setattr(executor, "chamar_modelo", proibido)
     assert cli.main(["executar", "--dry-run"]) == 0
     saida = capsys.readouterr().out
-    assert "16 chamadas" in saida and "Nada foi enviado" in saida
+    assert "42 chamadas" in saida and "Nada foi enviado" in saida
     assert "Configuração A" in saida and "Configuração B" in saida
     assert "sk-nao-usada" not in saida
 
@@ -43,15 +44,17 @@ def test_executar_e_comparar_de_ponta_a_ponta(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr("config.load_dotenv", lambda: None)
     original = executor.executar_caso
 
-    def com_api_falsa(caso, config, servico, execucao_id, repeticao=1, chamar=None):
-        return original(caso, config, servico, execucao_id, repeticao, api_falsa)
+    def com_api_falsa(caso, config, servico, execucao_id, repeticao=1, chamar=None, *a, **k):
+        return original(caso, config, servico, execucao_id, repeticao, api_falsa, *a, **k)
 
     monkeypatch.setattr(executor, "executar_caso", com_api_falsa)
     assert cli.main(["executar", "--saida", str(tmp_path)]) == 0
     csv_path = next(tmp_path.glob("*.csv"))
     with open(csv_path, newline="", encoding="utf-8-sig") as f:
         linhas = list(csv.DictReader(f))
-    assert len(linhas) == 16 and {l["configuracao"] for l in linhas} == {"A", "B"}
+    assert len(linhas) == 42 and {l["configuracao"] for l in linhas} == {"A", "B", "D"}
+    assert {l["situacao_final"] for l in linhas} <= {"concluido", "parcial"}
+    assert next(tmp_path.glob("*.eventos.jsonl")).exists()
 
     # sem notas, a comparação recusa e explica
     capsys.readouterr()
@@ -67,7 +70,7 @@ def test_executar_e_comparar_de_ponta_a_ponta(tmp_path, monkeypatch, capsys):
         escritor.writerows(linhas)
     destino = tmp_path / "comparacao.md"
     assert cli.main(["comparar", str(csv_path), "--saida", str(destino)]) == 0
-    assert "8 caso(s) melhoraram" in destino.read_text(encoding="utf-8")
+    assert "14 caso(s) melhoraram" in destino.read_text(encoding="utf-8")
 
 
 def test_configuracoes_insuficientes(capsys):

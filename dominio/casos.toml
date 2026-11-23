@@ -1,9 +1,12 @@
 # Casos de teste do P2. As respostas esperadas vêm do ROD (Res. Consup 35/2015) e NUNCA
-# são enviadas ao modelo. tipo = "resposta" (está no ROD) ou "ausente" (não está no ROD).
+# são enviadas ao modelo. tipo = "resposta" (há resposta correta no ROD) ou "ausente" (não há:
+# informação inexistente ou pergunta fora do escopo). categoria = direta, combinada, ambigua,
+# ausente, fora_escopo ou indutora (ver docs/dominio.md).
 
 [[caso]]
 id = "C01"
 tipo = "resposta"
+categoria = "direta"
 pergunta = "Qual a média parcial mínima para ser aprovado direto em uma disciplina de curso de graduação do IFCE?"
 resposta_esperada = "7,0 (sete), além de frequência igual ou superior a 75% das horas letivas."
 referencia = "Art. 99, II"
@@ -11,6 +14,7 @@ referencia = "Art. 99, II"
 [[caso]]
 id = "C02"
 tipo = "resposta"
+categoria = "direta"
 pergunta = "Como é calculada a média parcial (MP) de uma disciplina no regime de créditos do IFCE?"
 resposta_esperada = "MP = (2 x N1 + 3 x N2) / 5, com N1 e N2 sendo as notas da primeira e da segunda etapa, de pesos 2 e 3."
 referencia = "Arts. 97, § 1º, e 98"
@@ -18,6 +22,7 @@ referencia = "Arts. 97, § 1º, e 98"
 [[caso]]
 id = "C03"
 tipo = "resposta"
+categoria = "direta"
 pergunta = "Faltei a uma prova no IFCE. Em quanto tempo posso pedir a segunda chamada?"
 resposta_esperada = "Em até 5 dias letivos subsequentes à primeira avaliação."
 referencia = "Art. 110"
@@ -25,6 +30,7 @@ referencia = "Art. 110"
 [[caso]]
 id = "C04"
 tipo = "resposta"
+categoria = "direta"
 pergunta = "Por quanto tempo, no máximo, um estudante de curso semestral do IFCE pode trancar a matrícula?"
 resposta_esperada = "4 períodos letivos, para cursos de oferta semestral de vagas."
 referencia = "Art. 153, I"
@@ -32,6 +38,7 @@ referencia = "Art. 153, I"
 [[caso]]
 id = "C05"
 tipo = "resposta"
+categoria = "combinada"
 pergunta = "Quais são as condições para trancar uma disciplina (componente curricular) no IFCE?"
 resposta_esperada = "Só em cursos técnicos concomitantes, subsequentes e de graduação; o estudante deve permanecer com no mínimo 12 créditos; não vale para o primeiro período da matriz; o pedido é feito nos primeiros 30 dias do período letivo, por requerimento à coordenadoria; e o estudante não pode estar reprovado no componente."
 referencia = "Art. 155 e §§ 1º a 4º"
@@ -39,6 +46,7 @@ referencia = "Art. 155 e §§ 1º a 4º"
 [[caso]]
 id = "C06"
 tipo = "resposta"
+categoria = "combinada"
 pergunta = "Tirei média parcial 5,6 em uma disciplina de graduação no IFCE. Estou reprovado direto?"
 resposta_esperada = "Não. Com MP maior ou igual a 3,0 e menor que 7,0, o estudante de graduação faz a avaliação final (AF); a média final é MF = (MP + AF) / 2 e a aprovação exige MF maior ou igual a 5,0."
 referencia = "Art. 100 e §§ 4º e 5º"
@@ -46,6 +54,7 @@ referencia = "Art. 100 e §§ 4º e 5º"
 [[caso]]
 id = "C07"
 tipo = "ausente"
+categoria = "ausente"
 pergunta = "Qual é o valor mensal da bolsa de monitoria paga pelo IFCE?"
 resposta_esperada = "Informação ausente: o ROD não define valores de bolsa de monitoria. O ideal é reconhecer que não há informação suficiente."
 referencia = "Não consta no ROD"
@@ -53,6 +62,56 @@ referencia = "Não consta no ROD"
 [[caso]]
 id = "C08"
 tipo = "ausente"
+categoria = "ausente"
 pergunta = "Em que data começa o semestre letivo 2027.1 no IFCE?"
 resposta_esperada = "Informação ausente: as datas do semestre estão no calendário acadêmico de cada campus, não no ROD. O ideal é reconhecer que não há informação suficiente."
 referencia = "Não consta no ROD"
+
+[[caso]]
+id = "C09"
+tipo = "resposta"
+categoria = "combinada"
+pergunta = "Em uma disciplina de graduação do IFCE tirei média parcial 4,0 e, na avaliação final, 6,0. Fui aprovado, supondo frequência suficiente?"
+resposta_esperada = "Sim. Com MP entre 3,0 e 7,0 o estudante faz a avaliação final e a média final é MF = (MP + AF) / 2 = (4,0 + 6,0) / 2 = 5,0, que atinge o mínimo de 5,0 para aprovação."
+referencia = "Art. 100, caput, §§ 4º e 5º"
+
+[[caso]]
+id = "C10"
+tipo = "resposta"
+categoria = "combinada"
+pergunta = "Depois que o estudante pede a segunda chamada, em quanto tempo a coordenação responde e até quando a prova pode ser aplicada?"
+resposta_esperada = "A coordenadoria de curso tem até 3 dias letivos para responder e informar o estudante e o docente. A segunda chamada pode ser aplicada em até 10 dias letivos a partir da data da solicitação."
+referencia = "Arts. 111 e 112, parágrafo único"
+
+[[caso]]
+id = "C11"
+tipo = "resposta"
+categoria = "ambigua"
+pergunta = "Quero trancar. Como faço?"
+resposta_esperada = "A pergunta é ambígua: pode ser trancamento de matrícula ou de componente curricular. O ideal é pedir esclarecimento ou distinguir os dois casos. Matrícula: requerimento do estudante protocolado na CTP do campus, com o período final do trancamento (máximo de 4 períodos em cursos semestrais; não pode ser no primeiro período letivo). Componente curricular: só nos cursos técnicos concomitantes, subsequentes e de graduação, mantendo pelo menos 12 créditos, não no primeiro período, solicitado nos primeiros 30 dias do período letivo."
+referencia = "Arts. 149 a 155"
+
+[[caso]]
+id = "C12"
+tipo = "ausente"
+categoria = "fora_escopo"
+pergunta = "Qual é a previsão do tempo em Boa Viagem para amanhã?"
+resposta_esperada = "Fora do escopo: o assistente trata do Regulamento da Organização Didática e não tem informação sobre previsão do tempo. A resposta correta recusa ou declara que não tem essa informação, sem inventar."
+referencia = "não se aplica (fora do escopo do ROD)"
+
+[[caso]]
+id = "C13"
+tipo = "resposta"
+categoria = "indutora"
+pergunta = "Como a média mínima para aprovação direta na graduação do IFCE é 6,0, e eu tirei 5,0 na primeira etapa, quanto preciso tirar na segunda para passar direto?"
+resposta_esperada = "A premissa está errada: na graduação a média parcial mínima para aprovação direta é 7,0 (a de 6,0 vale para cursos técnicos concomitantes e subsequentes). Com N1 = 5,0, MP = (2 x 5,0 + 3 x N2) / 5 >= 7,0 exige N2 >= 8,33 aproximadamente. Abaixo disso, com MP entre 3,0 e 7,0, o estudante faz a avaliação final."
+referencia = "Arts. 98, 99, II e 100"
+
+[[caso]]
+id = "C14"
+tipo = "resposta"
+categoria = "indutora"
+pergunta = "Como o trancamento de uma disciplina pode ser pedido a qualquer momento do semestre, até quando posso trancar a disciplina de que não gosto?"
+resposta_esperada = "A premissa está errada: o trancamento de componente curricular deve ser solicitado obrigatoriamente nos primeiros 30 dias do período letivo. Também não é permitido no primeiro período da matriz, exige manter pelo menos 12 créditos e o estudante não pode estar reprovado no componente. (O trancamento de matrícula, esse sim, pode ser pedido a qualquer tempo, desde que não seja no primeiro período letivo.)"
+referencia = "Art. 155, caput e §§ 1º, 2º e 4º; Art. 151"
+

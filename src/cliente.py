@@ -66,27 +66,31 @@ def chamar_modelo(corpo, servico):
         resposta = requests.post(servico.url, json=corpo, headers=cabecalhos,
                                  timeout=servico.timeout)
     except requests.exceptions.Timeout:
-        raise ErroServico(f"O serviço não respondeu em {servico.timeout} segundos.")
+        raise ErroServico(f"O serviço não respondeu em {servico.timeout} segundos.",
+                          transitorio=True)
     except requests.exceptions.ConnectionError:
-        raise ErroServico("Sem conexão com o serviço. Verifique sua internet.")
+        raise ErroServico("Sem conexão com o serviço. Verifique sua internet.",
+                          transitorio=True)
     except requests.exceptions.RequestException:
-        raise ErroServico("Falha de comunicação com o serviço.")
+        raise ErroServico("Falha de comunicação com o serviço.", transitorio=True)
     latencia = time.perf_counter() - inicio
 
     status = resposta.status_code
     detalhe = _detalhe_do_erro(resposta)
     if status in (401, 403):
-        raise ErroServico("Credencial inválida ou sem permissão. Confira OPENAI_API_KEY no .env.")
+        raise ErroServico("Credencial inválida ou sem permissão. Confira OPENAI_API_KEY no .env.",
+                          fatal=True)
     if status == 404 or "model_not_found" in detalhe:
         raise ErroServico(f"Modelo '{corpo.get('model')}' não encontrado ou sem acesso. "
-                          "Confira OPENAI_MODEL ou configuracoes.toml.")
+                          "Confira OPENAI_MODEL ou configuracoes.toml.", fatal=True)
     if status == 429 and "insufficient_quota" in detalhe:
         raise ErroServico("Sem crédito na conta da API. A assinatura do ChatGPT não inclui a "
-                          "API: adicione crédito em platform.openai.com.")
+                          "API: adicione crédito em platform.openai.com.", fatal=True)
     if status == 429:
-        raise ErroServico("Limite de uso excedido. Aguarde e tente de novo.")
+        raise ErroServico("Limite de uso excedido. Aguarde e tente de novo.",
+                          transitorio=True)
     if status >= 500:
-        raise ErroServico("O serviço está indisponível no momento.")
+        raise ErroServico("O serviço está indisponível no momento.", transitorio=True)
     if status != 200:
         motivo = _mensagem_curta(resposta)
         raise ErroServico(f"Requisição recusada pelo serviço (HTTP {status})"

@@ -85,7 +85,52 @@ casos ou com outro modelo, e se a configuração C (esforço de raciocínio baix
 
 ### Intermediário
 
-Ainda não realizado.
+Estado: referência construída e testada com API simulada. **A execução real, as notas e a
+conclusão abaixo dependem da rodada do autor e não foram preenchidas com valores inventados.**
+
+O que mudou do Básico (detalhes e motivos em `docs/alteracoes.md`):
+
+- 14 casos (8 do Básico mantidos e 6 novos) cobrindo as categorias direta, combinada, ambígua,
+  ausente, fora de escopo e indutora;
+- configurações A e B do Básico mantidas, mais a D (instrução de conferência de dados e
+  cálculos), que testa a hipótese de que a conferência melhora casos de cálculo e de premissa
+  falsa; a C segue desligada;
+- fluxo em três etapas, com registro de eventos, nova tentativa limitada e encerramento
+  controlado (`docs/falhas.md`).
+
+Execução real:
+
+- Arquivo de resultados: A preencher após a execução real.
+- Data, modelo e repetições: A preencher após a execução real.
+- Situação final dos casos (concluído, parcial, falha, interrompido): A preencher.
+
+Resultados (saída do comando `comparar`): A preencher após a execução real.
+
+| Categoria | Nota A | Nota B | Nota D |
+| --- | --- | --- | --- |
+| direta | A preencher | A preencher | A preencher |
+| combinada | A preencher | A preencher | A preencher |
+| ambigua | A preencher | A preencher | A preencher |
+| ausente | A preencher | A preencher | A preencher |
+| fora_escopo | A preencher | A preencher | A preencher |
+| indutora | A preencher | A preencher | A preencher |
+
+Síntese por configuração (usar todos os casos, sem selecionar os favoráveis):
+
+| Configuração | Pontos fortes | Limitações | Melhor em | Pior em | Consumo adicional | Efeitos inesperados |
+| --- | --- | --- | --- | --- | --- | --- |
+| A | A preencher | A preencher | A preencher | A preencher | referência | A preencher |
+| B | A preencher | A preencher | A preencher | A preencher | A preencher | A preencher |
+| D | A preencher | A preencher | A preencher | A preencher | A preencher | A preencher |
+
+Conclusão intermediária (A preencher após a execução real): qual configuração teve os
+melhores resultados até agora, em quais tipos de caso, quais limitações permanecem e quais
+hipóteses serão investigadas com o RAG.
+
+Falha tratada demonstrada: `python src/assistente_p2.py demonstrar-falhas` (simulada, sem custo)
+e, se ocorrer na execução real, o caso correspondente em `execucao_*.eventos.jsonl`.
+
+Experiência com IDE agêntica (C14): ver `docs/ide-agentica.md` (a preencher pelo autor).
 
 ### Avançado
 

@@ -22,6 +22,27 @@ Regras de aplicação:
 - uma recusa em caso do tipo "resposta" recebe 0 ou 1 (o modelo deveria saber ou tentar);
 - uma recusa em caso do tipo "ausente" pode receber 3.
 
+## Critérios por categoria de caso (acrescentados no Intermediário)
+
+As categorias foram definidas **antes** da execução ampliada. A escala de 0 a 3 é a mesma;
+muda o que significa cada nota nas categorias abaixo. As categorias "direta" e "combinada"
+seguem a coluna "resposta" da tabela acima, e "ausente" segue a coluna "ausente".
+
+| Categoria | Nota 3 | Nota 2 | Nota 1 | Nota 0 |
+| --- | --- | --- | --- | --- |
+| combinada | todos os dados e o cálculo ou a combinação corretos | resultado certo, faltando uma condição relevante | acerta o assunto, mas erra um dado ou um passo do cálculo | resultado errado ou sem resposta |
+| ambigua | aponta a ambiguidade e pede esclarecimento, ou cobre as interpretações com dados corretos | responde uma interpretação com dados corretos, sem notar a outra | responde sem notar a ambiguidade e com erro importante | inventa ou responde sem relação |
+| fora_escopo | reconhece que está fora do escopo ou que não tem a informação, sem inventar | recusa, mas de modo confuso ou sem dizer o motivo | tenta responder com ressalvas e dado específico sem base | responde como se fosse fato |
+| indutora | corrige a premissa falsa e dá o dado correto | dá o dado correto sem apontar a premissa falsa | aceita parte da premissa e erra um dado | aceita a premissa falsa e responde dentro dela |
+
+Regras adicionais:
+
+- em "combinada" e "indutora", um valor numérico errado limita a nota a no máximo 1, como
+  nas demais categorias;
+- em "ambigua", pedir esclarecimento sem dar nenhum dado correto recebe no máximo 2;
+- em "fora_escopo", responder o assunto estranho ao ROD (por exemplo, dar uma previsão do
+  tempo) recebe 0.
+
 ## Indicadores automáticos (não substituem a nota)
 
 | Indicador | Como é obtido |

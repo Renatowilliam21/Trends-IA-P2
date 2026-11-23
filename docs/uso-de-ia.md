@@ -12,9 +12,15 @@ terminal, para esta versão de referência.
 
 ## O que foi verificado por uma pessoa
 
-- Os testes simulados rodam sem rede (102 passam na criação deste documento).
+- Os testes simulados rodam sem rede e sem custo (`python -m pytest`).
 - As respostas esperadas dos casos foram conferidas contra o texto do ROD.
 - A execução real, as notas e a conclusão provisória são feitas por quem avalia, não pela IA.
+
+## Intermediário
+
+A IDE agêntica pedida em C14 é uma experiência do próprio autor e está registrada em
+`docs/ide-agentica.md`. A conversa com Claude usada para montar esta referência não substitui
+esse registro.
 
 ## Observação
 

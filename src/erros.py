@@ -14,7 +14,28 @@ class ErroCasos(ErroAssistente):
 
 
 class ErroServico(ErroAssistente):
-    """Falha de comunicação, autenticação ou disponibilidade do serviço."""
+    """Falha de comunicação, autenticação ou disponibilidade do serviço.
+
+    transitorio: vale tentar de novo (timeout, limite de taxa, instabilidade).
+    fatal: toda chamada seguinte falharia do mesmo modo (credencial, modelo, crédito).
+    """
+
+    def __init__(self, mensagem, transitorio=False, fatal=False):
+        super().__init__(mensagem)
+        self.transitorio = transitorio
+        self.fatal = fatal
+
+
+class ErroEntrada(ErroAssistente):
+    """Pergunta vazia, longa demais ou inválida, detectada antes de chamar o modelo."""
+
+
+class ExecucaoInterrompida(ErroAssistente):
+    """A execução foi encerrada de forma controlada; os registros parciais seguem em .registros."""
+
+    def __init__(self, mensagem, registros):
+        super().__init__(mensagem)
+        self.registros = registros
 
 
 class ErroResposta(ErroAssistente):

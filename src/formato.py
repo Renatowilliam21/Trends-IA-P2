@@ -70,7 +70,7 @@ def _validar_objeto(obj):
 def processar(formato, texto_bruto):
     """Valida a resposta conforme o formato pedido e extrai o texto para avaliação."""
     texto_bruto = (texto_bruto or "").strip()
-    if formato == "livre":
+    if formato in ("livre", "conferir"):
         return ResultadoFormato(texto_bruto, bool(texto_bruto),
                                 "" if texto_bruto else "resposta vazia",
                                 detectar_recusa(texto_bruto))

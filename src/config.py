@@ -13,7 +13,7 @@ ARQUIVO_PADRAO = RAIZ_PROJETO / "configuracoes.toml"
 API_URL = "https://api.openai.com/v1/chat/completions"
 MODELO_PADRAO = "gpt-5.6-terra"
 TIMEOUT_PADRAO = 60
-FORMATOS = ("livre", "json")
+FORMATOS = ("livre", "json", "conferir")
 CAMPOS_ACEITOS = {"ativa", "descricao", "variacao", "formato", "max_tokens",
                   "temperature", "reasoning_effort"}
 
@@ -130,6 +130,42 @@ def carregar_configuracoes(caminho=ARQUIVO_PADRAO):
         raise ErroConfiguracao("Nenhuma configuração encontrada em [configuracoes.*].")
     configs = {nome: montar_config_geracao(nome, t) for nome, t in tabelas.items()}
     return bruto.get("servico", {}), configs
+
+
+@dataclass(frozen=True)
+class ParametrosFluxo:
+    """Limites do fluxo: nova tentativa, espera e encerramento controlado."""
+
+    max_tentativas: int = 3
+    espera_base_s: float = 1.0
+    falhas_seguidas_max: int = 3
+    max_caracteres: int = 1000
+
+
+def carregar_fluxo(caminho=ARQUIVO_PADRAO):
+    """Lê a tabela [fluxo] (opcional) e valida os limites."""
+    dados = ler_toml(caminho).get("fluxo", {})
+    if not isinstance(dados, dict):
+        raise ErroConfiguracao("[fluxo] deve ser uma tabela.")
+    desconhecidos = set(dados) - {"max_tentativas", "espera_base_s", "falhas_seguidas_max",
+                                   "max_caracteres"}
+    if desconhecidos:
+        raise ErroConfiguracao(f"[fluxo]: campo(s) desconhecido(s): "
+                               f"{', '.join(sorted(desconhecidos))}.")
+    padrao = ParametrosFluxo()
+    espera = dados.get("espera_base_s", padrao.espera_base_s)
+    if isinstance(espera, bool) or not isinstance(espera, (int, float)) or espera < 0:
+        raise ErroConfiguracao("[fluxo]: espera_base_s deve ser um número maior ou igual a zero.")
+    return ParametrosFluxo(
+        max_tentativas=_inteiro_positivo(dados.get("max_tentativas", padrao.max_tentativas),
+                                         "max_tentativas", "[fluxo]"),
+        espera_base_s=float(espera),
+        falhas_seguidas_max=_inteiro_positivo(
+            dados.get("falhas_seguidas_max", padrao.falhas_seguidas_max),
+            "falhas_seguidas_max", "[fluxo]"),
+        max_caracteres=_inteiro_positivo(dados.get("max_caracteres", padrao.max_caracteres),
+                                         "max_caracteres", "[fluxo]"),
+    )
 
 
 def escolher_configs(configs, nomes=None):

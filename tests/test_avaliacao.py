@@ -73,3 +73,19 @@ def test_sem_pendencias(tmp_path, capsys):
     saidas = []
     assert avaliar(caminho, carregar_casos(), _entradas(), saidas.append) == 0
     assert "Nada a avaliar" in saidas[0]
+
+
+def test_arquivo_bloqueado_da_erro_claro(tmp_path, monkeypatch):
+    import builtins
+    from comparacao import ErroComparacao
+    caminho = _csv(tmp_path, 1)
+    real = builtins.open
+
+    def bloqueado(arquivo, modo="r", *a, **k):
+        if "w" in modo:
+            raise PermissionError(13, "Permission denied")
+        return real(arquivo, modo, *a, **k)
+
+    monkeypatch.setattr(builtins, "open", bloqueado)
+    with pytest.raises(ErroComparacao, match="aberto no Excel"):
+        avaliar(caminho, carregar_casos(), _entradas("3", ""), lambda *_: None)

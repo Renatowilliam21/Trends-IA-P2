@@ -1,19 +1,22 @@
 """Execução do mesmo conjunto de casos em várias configurações, sem duplicar lógica."""
 import csv
 import json
+import time
 from datetime import datetime
 from pathlib import Path
 
 from cliente import chamar_modelo
-from erros import ErroAssistente
-from formato import processar
-from prompts import montar_corpo
+from config import ParametrosFluxo
+from erros import ExecucaoInterrompida
+from fluxo import executar_fluxo
+from registro import Registro
 
 COLUNAS = [
-    "execucao_id", "caso_id", "tipo", "configuracao", "repeticao", "data", "modelo",
-    "parametros", "latencia_s", "tokens_entrada", "tokens_saida", "tokens_total",
-    "consumo_medida", "consumo_valor", "formato_valido", "motivo_formato",
-    "recusa_detectada", "erro", "resposta", "nota", "observacao",
+    "execucao_id", "caso_id", "tipo", "categoria", "configuracao", "repeticao", "data",
+    "modelo", "parametros", "versao_prompt", "situacao_final", "chamadas", "tempo_total_s",
+    "latencia_s", "tokens_entrada", "tokens_saida", "tokens_total", "consumo_medida",
+    "consumo_valor", "formato_valido", "motivo_formato", "recusa_detectada", "erro",
+    "resposta", "nota", "observacao",
 ]
 
 
@@ -21,60 +24,58 @@ def agora():
     return datetime.now().astimezone().isoformat(timespec="seconds")
 
 
-def executar_caso(caso, config, servico, execucao_id, repeticao=1, chamar=chamar_modelo):
+def novo_id():
+    return datetime.now().strftime("%Y%m%d-%H%M%S")
+
+
+def executar_caso(caso, config, servico, execucao_id, repeticao=1, chamar=chamar_modelo,
+                  params=None, registro=None, dormir=time.sleep, sinal=None, pergunta=None):
     """Executa UM caso em UMA configuração e devolve o registro (nunca levanta erro previsto)."""
-    registro = {
-        "execucao_id": execucao_id, "caso_id": caso.id, "tipo": caso.tipo,
-        "configuracao": config.nome, "repeticao": repeticao, "data": agora(),
-        "modelo": servico.modelo,
-        "parametros": json.dumps(config.parametros(), ensure_ascii=False, sort_keys=True),
-        "latencia_s": "", "tokens_entrada": "", "tokens_saida": "", "tokens_total": "",
-        "consumo_medida": "chamadas", "consumo_valor": 1,
-        "formato_valido": "", "motivo_formato": "", "recusa_detectada": "",
-        "erro": "", "resposta": "", "nota": "", "observacao": "",
-    }
-    corpo = montar_corpo(caso, config, servico)
-    try:
-        resposta = chamar(corpo, servico)
-    except ErroAssistente as erro:
-        registro["erro"] = f"{type(erro).__name__}: {erro}"
-        return registro
-
-    resultado = processar(config.formato, resposta.texto)
-    registro.update({
-        "latencia_s": round(resposta.latencia_s, 3),
-        "tokens_entrada": _vazio(resposta.tokens_entrada),
-        "tokens_saida": _vazio(resposta.tokens_saida),
-        "tokens_total": _vazio(resposta.tokens_total),
-        "formato_valido": resultado.formato_valido,
-        "motivo_formato": resultado.motivo,
-        "recusa_detectada": resultado.recusa_detectada,
-        "resposta": resultado.texto,
-    })
-    if resposta.tokens_total is not None:
-        registro["consumo_medida"], registro["consumo_valor"] = "tokens", resposta.tokens_total
-    return registro
+    return executar_fluxo(caso, config, servico, execucao_id, repeticao, chamar, params,
+                          registro, dormir, pergunta=pergunta, agora=agora, sinal=sinal)
 
 
-def _vazio(valor):
-    return "" if valor is None else valor
-
-
-def executar(casos, configs, servico, repeticoes=1, chamar=chamar_modelo, ao_terminar=None):
+def executar(casos, configs, servico, repeticoes=1, chamar=chamar_modelo, ao_terminar=None,
+             params=None, registro=None, dormir=time.sleep, execucao_id=None):
     """Roda todos os casos em todas as configurações.
 
     A ordem intercala as configurações em cada caso (repetição, caso, configuração) para que
     oscilações de rede ou de carga do serviço afetem todas de forma parecida.
+
+    Encerra de forma controlada (ExecucaoInterrompida, com os registros até ali) quando uma
+    falha é fatal (credencial, modelo, crédito) ou quando o serviço falha em
+    params.falhas_seguidas_max casos seguidos.
     """
-    execucao_id = datetime.now().strftime("%Y%m%d-%H%M%S")
-    registros = []
+    params = params or ParametrosFluxo()
+    registro = registro if registro is not None else Registro()
+    execucao_id = execucao_id or novo_id()
+    registros, seguidas = [], 0
     for repeticao in range(1, repeticoes + 1):
         for caso in casos:
             for config in configs:
-                registro = executar_caso(caso, config, servico, execucao_id, repeticao, chamar)
-                registros.append(registro)
+                sinal = {}
+                linha = executar_caso(caso, config, servico, execucao_id, repeticao, chamar,
+                                      params, registro, dormir, sinal)
+                registros.append(linha)
                 if ao_terminar:
-                    ao_terminar(registro)
+                    ao_terminar(linha)
+                motivo = None
+                if sinal.get("fatal"):
+                    motivo = "falha que se repetiria em todas as chamadas: " + linha["erro"]
+                elif sinal.get("servico_falhou"):
+                    seguidas += 1
+                    if seguidas >= params.falhas_seguidas_max:
+                        motivo = (f"o serviço falhou em {seguidas} casos seguidos "
+                                  f"(último erro: {linha['erro']})")
+                elif linha["situacao_final"] in ("concluido", "parcial"):
+                    seguidas = 0
+                if motivo:
+                    registro.evento(execucao_id=execucao_id, etapa="execucao",
+                                    evento="encerramento", resultado="erro",
+                                    resumo=f"{len(registros)} caso(s) executado(s)", erro=motivo)
+                    raise ExecucaoInterrompida(
+                        f"Execução encerrada: {motivo}. Os {len(registros)} registro(s) até aqui "
+                        "foram preservados.", registros)
     return registros
 
 

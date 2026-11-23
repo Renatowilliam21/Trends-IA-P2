@@ -28,12 +28,26 @@ sobre qualquer transcrição.
 
 ## Casos de teste
 
-O arquivo `dominio/casos.toml` reúne 8 perguntas, cada uma com resposta esperada, artigo de
-referência e tipo:
+O arquivo `dominio/casos.toml` reúne 14 perguntas (8 do Básico, melhoradas, mais 6 do
+Intermediário), cada uma com resposta esperada, artigo de referência, tipo e categoria:
 
 - **resposta:** a informação está no ROD, e a resposta esperada é conhecida;
-- **ausente:** a informação não está no ROD (conferido na versão completa do documento), e a
-  resposta correta é reconhecer a ausência em vez de inventar.
+- **ausente:** não há resposta no ROD (informação inexistente, conferida na versão completa do
+  documento, ou pergunta fora do escopo), e a resposta correta é reconhecer isso em vez de
+  inventar.
+
+A **categoria** descreve o desafio do caso. O conjunto cobre todas as pedidas no Intermediário:
+
+| Categoria | Casos | Desafio |
+| --- | --- | --- |
+| direta | C01 a C04 | resposta direta no texto |
+| combinada | C05, C06, C09, C10 | exige combinar informações ou calcular |
+| ambigua | C11 | a pergunta admite mais de uma leitura |
+| ausente | C07, C08 | a informação não existe no ROD |
+| fora_escopo | C12 | assunto alheio ao ROD |
+| indutora | C13, C14 | a pergunta traz uma premissa falsa que convida a inventar |
+
+Os casos de reconhecimento de incerteza ou recusa são C07, C08 e C12.
 
 Os casos foram escritos antes da primeira execução e não devem ser alterados depois de ver
 as respostas do modelo.

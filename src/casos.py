@@ -8,6 +8,7 @@ from erros import ErroCasos
 
 ARQUIVO_PADRAO = RAIZ_PROJETO / "dominio" / "casos.toml"
 TIPOS = ("resposta", "ausente")
+CATEGORIAS = ("direta", "combinada", "ambigua", "ausente", "fora_escopo", "indutora")
 MINIMO_DE_CASOS = 6
 
 
@@ -18,6 +19,7 @@ class Caso:
     pergunta: str
     resposta_esperada: str
     referencia: str
+    categoria: str = ""
 
 
 def carregar_casos(caminho=ARQUIVO_PADRAO):
@@ -44,11 +46,16 @@ def carregar_casos(caminho=ARQUIVO_PADRAO):
                 raise ErroCasos(f"Caso nº {posicao}: o campo '{campo}' é obrigatório.")
         if item["tipo"] not in TIPOS:
             raise ErroCasos(f"Caso {item['id']}: tipo deve ser 'resposta' ou 'ausente'.")
+        categoria = item.get("categoria", "")
+        if categoria and categoria not in CATEGORIAS:
+            raise ErroCasos(f"Caso {item['id']}: categoria deve ser uma de "
+                            f"{', '.join(CATEGORIAS)}.")
         if item["id"] in vistos:
             raise ErroCasos(f"Identificador de caso repetido: {item['id']}.")
         vistos.add(item["id"])
         casos.append(Caso(item["id"], item["tipo"], item["pergunta"].strip(),
-                          item["resposta_esperada"].strip(), item["referencia"].strip()))
+                          item["resposta_esperada"].strip(), item["referencia"].strip(),
+                          categoria))
 
     if len(casos) < MINIMO_DE_CASOS:
         raise ErroCasos(
