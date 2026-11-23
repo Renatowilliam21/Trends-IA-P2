@@ -65,9 +65,16 @@ python src/assistente_p2.py executar               # roda de verdade (gasta cré
 
 A execução grava em `resultados/` dois arquivos com o mesmo nome:
 
-- `execucao_AAAAMMDD-HHMMSS.csv`: abra no Excel ou no editor, **preencha as colunas `nota` e
-  `observacao`** seguindo `docs/criterios.md`;
+- `execucao_AAAAMMDD-HHMMSS.csv`: contém as colunas `nota` e `observacao`, a preencher;
 - `execucao_AAAAMMDD-HHMMSS.jsonl`: cópia fiel, para conferência.
+
+Para dar as notas sem abrir o CSV, use a avaliação guiada. Ela mostra a pergunta, a resposta
+esperada e cada resposta do modelo (embaralhadas e sem o nome da configuração), pede a nota
+de 0 a 3 e grava o CSV a cada nota. Pode ser interrompida e retomada:
+
+```bash
+python src/assistente_p2.py avaliar resultados/execucao_AAAAMMDD-HHMMSS.csv
+```
 
 Depois de preencher as notas:
 
@@ -107,13 +114,14 @@ resposta, nota e observação. Latência e consumo são registrados separadament
 
 | Arquivo | Responsabilidade |
 | --- | --- |
-| `src/assistente_p2.py` | linha de comando (listar, executar, comparar) |
+| `src/assistente_p2.py` | linha de comando (listar, executar, avaliar, comparar) |
 | `src/config.py` | credencial, serviço e configurações de geração |
 | `src/casos.py` | carga e validação dos casos de teste |
 | `src/prompts.py` | montagem do prompt (sem corpus) e do corpo da requisição |
 | `src/cliente.py` | chamada à API, latência, tokens e tratamento de falhas |
 | `src/formato.py` | validação do formato e detecção de recusa |
 | `src/executor.py` | executa os casos nas configurações e grava os resultados |
+| `src/avaliacao.py` | avaliação manual guiada (cega) que grava as notas no CSV |
 | `src/comparacao.py` | resumo por configuração e comparação caso a caso |
 | `dominio/casos.toml` | perguntas, respostas esperadas e referências (nunca enviadas ao modelo) |
 | `docs/criterios.md` | escala de avaliação, definida antes da execução |

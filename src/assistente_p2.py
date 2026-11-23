@@ -14,6 +14,7 @@ from pathlib import Path
 from apresentacao import mostrar, mostrar_erro
 from casos import ARQUIVO_PADRAO as CASOS_PADRAO
 from casos import carregar_casos
+from avaliacao import avaliar
 from comparacao import comparar, ler_resultados, renderizar_markdown
 from config import (ARQUIVO_PADRAO, RAIZ_PROJETO, Servico, carregar_configuracoes,
                     carregar_servico, escolher_configs)
@@ -36,6 +37,9 @@ def criar_analisador():
     ex.add_argument("--saida", default=str(PASTA_RESULTADOS))
     ex.add_argument("--dry-run", action="store_true",
                     help="mostra o que seria enviado, sem chamar a API e sem precisar de chave")
+    av = sub.add_parser("avaliar", help="pede as notas uma a uma e grava no CSV (avaliação cega)")
+    av.add_argument("arquivo")
+    av.add_argument("--casos", default=str(CASOS_PADRAO))
     co = sub.add_parser("comparar", help="compara as configurações a partir do CSV com notas")
     co.add_argument("arquivo")
     co.add_argument("--base", default="A", help="configuração usada como linha de base")
@@ -103,7 +107,14 @@ def comando_comparar(args):
     return 0
 
 
-COMANDOS = {"listar": comando_listar, "executar": comando_executar, "comparar": comando_comparar}
+def comando_avaliar(args):
+    casos = carregar_casos(args.casos)
+    avaliar(args.arquivo, casos)
+    return 0
+
+
+COMANDOS = {"listar": comando_listar, "executar": comando_executar,
+            "avaliar": comando_avaliar, "comparar": comando_comparar}
 
 
 def main(argv=None):
